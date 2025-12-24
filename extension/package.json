@@ -1,0 +1,37 @@
+{
+    "name": "apex-extension",
+    "displayName": "APEX Shadow Probe",
+    "version": "0.0.1",
+    "description": "A silent data collector for APEX.",
+    "author": "APEX Team",
+    "scripts": {
+        "dev": "plasmo dev",
+        "build": "plasmo build",
+        "package": "plasmo package"
+    },
+    "dependencies": {
+        "plasmo": "latest",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "idb": "^8.0.0"
+    },
+    "devDependencies": {
+        "@types/chrome": "latest",
+        "@types/node": "latest",
+        "@types/react": "18.2.0",
+        "@types/react-dom": "18.2.0",
+        "typescript": "5.3.3"
+    },
+    "manifest": {
+        "host_permissions": [
+            "https://*.twitter.com/*",
+            "https://*.x.com/*"
+        ],
+        "permissions": [
+            "webRequest",
+            "storage",
+            "activeTab"
+        ]
+    },
+    "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
+}
