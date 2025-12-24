@@ -1,11 +1,12 @@
 import { openDB, type DBSchema } from "idb"
+import type { ParsedTweet } from "./utils/parser"
 
 interface ApexDB extends DBSchema {
     pending_tweets: {
         key: number
         value: {
             tweet_id: string
-            data: any
+            data: ParsedTweet
             timestamp: number
             synced: boolean
         }
@@ -30,21 +31,33 @@ export async function initDB() {
     })
 }
 
-export async function saveTweet(tweetData: any) {
+export async function hasTweet(tweetId: string): Promise<boolean> {
+    try {
+        const db = await initDB();
+        const existing = await db.getFromIndex("pending_tweets", "by-tweet-id", tweetId);
+        return !!existing;
+    } catch (e) {
+        return false;
+    }
+}
+
+export async function saveTweet(tweetData: ParsedTweet) {
     try {
         const db = await initDB()
 
-        // Extract Tweet ID (simplified logic, needs refinement based on actual X data structure)
-        // Usually in result.rest_id or similar
-        const tweetId = tweetData?.rest_id || tweetData?.tweet?.rest_id || Date.now().toString()
+        // Deduplication Check
+        if (await hasTweet(tweetData.tweet_id)) {
+            console.log("[APEX] Duplicate ignored:", tweetData.tweet_id);
+            return;
+        }
 
         await db.add("pending_tweets", {
-            tweet_id: tweetId,
+            tweet_id: tweetData.tweet_id,
             data: tweetData,
             timestamp: Date.now(),
             synced: false,
         })
-        console.log("[APEX] Saved to DB:", tweetId)
+        console.log("[APEX] Saved to DB:", tweetData.tweet_id)
     } catch (e) {
         console.error("[APEX] DB Save Error:", e)
     }
