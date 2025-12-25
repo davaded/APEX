@@ -4,27 +4,42 @@
 This document tracks the development progress of the APEX project, recording completed milestones, current status, and next steps.
 
 ## Status Overview
-- **Current Phase**: Phase 1 Completed / Ready for Phase 2
-- **Last Updated**: 2025-12-24
+- **Current Phase**: Phase 2 Complete / Schema Sync Pending
+- **Last Updated**: 2025-12-25
 
 ## Completed Milestones
 
 ### Phase 1: Infrastructure Setup (2025-12-24)
 - [x] **Next.js Project Initialization**: Created `apex-hub` with Next.js 15, TypeScript, Tailwind CSS, and App Router.
-- [x] **UI Component Library**: Configured `shadcn/ui` with Zinc theme. Installed core components (Button, Card, Input).
+- [x] **UI Component Library**: Configured `shadcn/ui` with Zinc theme.
 - [x] **Animation Library**: Integrated `framer-motion` for UI animations.
-- [x] **Database Client**: Configured Supabase client (`@supabase/supabase-js`) and environment variables structure.
-- [x] **Verification**: Created test pages for animations and UI components. Verified build and linting.
+- [x] **Database Client**: Configured Supabase client.
 
-## Next Steps
-- Begin **Phase 2: Chrome Extension Development**.
-- Initialize Plasmo project.
-- Implement network request interception.
+### Phase 2: Chrome Extension (2025-12-24 ~ 2025-12-25)
+- [x] **Plasmo Setup**: Manually scaffolded Plasmo project.
+- [x] **Interception Core**: Implemented `window.fetch` and `XMLHttpRequest` interception.
+- [x] **Action Capture**: Capturing `CreateLike`, `FavoriteTweet`, `CreateBookmark`, `Likes`, `Bookmarks` GraphQL operations.
+- [x] **Local Storage**: Implemented `IndexedDB` storage (`apex-cache`) with deduplication.
+- [x] **Data Upload**: Implemented Supabase sync with batch upload.
 
-### Phase 2: Chrome Extension (2025-12-24)
-- [x] **Plasmo Setup**: Manually scaffolded Plasmo project due to CLI issues.
-- [x] **Interception Core**: Implemented `window.fetch` and `XMLHttpRequest` interception in `content.ts`.
-- [x] **Action Capture**: Successfully capturing `CreateLike`, `FavoriteTweet`, and `CreateBookmark` GraphQL operations.
-- [x] **Local Storage**: Implemented `IndexedDB` storage (`apex-cache`) to buffer captured tweets.
-- [/] **Data Upload**: Implemented `relay.ts` and `background.ts` for data upload.
-  - *Pending*: `.env` configuration for Supabase credentials.
+### Ghost Crawler V2 (2025-12-25) ✅
+- [x] **Auth Capture**: Cookie-based CSRF + public Bearer token extraction
+- [x] **XHR Interception**: Detects Likes/Bookmarks API requests, captures API URL
+- [x] **Background Miner**: State machine (IDLE/SYNCING/COOLDOWN/OFFLINE)
+- [x] **Stealth Features**: Randomized jitter (3-4 min), idle user detection
+- [x] **Circuit Breaker**: Rate limit (429) and auth failure (401/403) handling
+- [x] **Cursor Pagination**: Auto-extracts next cursor for continuous mining
+- [x] **Tweet URL**: Added `tweet_url` field (https://x.com/{user}/status/{id})
+
+### Phase 3: Database Design (2025-12-24)
+- [x] Created `tweets` table with pgvector support
+- [x] Created `tags` and `tweet_tags` tables
+- [x] Enabled RLS policies
+
+## Pending Tasks
+- [ ] Run SQL migration to add missing columns (`user_avatar`, `video_url`, `tweet_url`, `metrics`, `is_quoted`)
+- [ ] Verify Supabase sync completes successfully
+- [ ] Begin Phase 4: Frontend Infrastructure
+
+## Known Issues
+- CSP warning about ws://localhost:1815 (HMR related, not affecting functionality)

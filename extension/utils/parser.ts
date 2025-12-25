@@ -48,6 +48,7 @@ interface TweetResult {
 
 export interface ParsedTweet {
     tweet_id: string;
+    tweet_url: string;
     full_text: string;
     user_name: string;
     user_screen_name: string;
@@ -125,11 +126,15 @@ export function parseTweet(rawData: any, sourceTag: string = "extension"): Parse
             if (q) quotedTweet = q;
         }
 
+        const screenName = user?.screen_name || "unknown";
+        const tweetId = result.rest_id || "unknown";
+
         return {
-            tweet_id: result.rest_id || "unknown",
+            tweet_id: tweetId,
+            tweet_url: `https://x.com/${screenName}/status/${tweetId}`,
             full_text: legacy.full_text || "",
             user_name: user?.name || "Unknown",
-            user_screen_name: user?.screen_name || "unknown",
+            user_screen_name: screenName,
             user_avatar: user?.profile_image_url_https || "",
             media_urls: mediaUrls,
             video_url: videoUrl,
@@ -150,4 +155,73 @@ export function parseTweet(rawData: any, sourceTag: string = "extension"): Parse
         console.error("[Parser] Error parsing tweet:", e);
         return null;
     }
+}
+
+export function parseTimeline(rawData: any, sourceTag: string): ParsedTweet[] {
+    const tweets: ParsedTweet[] = [];
+    try {
+        console.log("[Parser] parseTimeline called with sourceTag:", sourceTag);
+
+        // Deep exploration of data structure
+        const data = rawData?.data;
+        const user = data?.user;
+        console.log("[Parser] data.user keys:", Object.keys(user || {}));
+
+        const result = user?.result;
+        console.log("[Parser] data.user.result keys:", Object.keys(result || {}));
+        console.log("[Parser] data.user.result.__typename:", result?.__typename);
+
+        // Try multiple possible paths
+        const timelineV2 = result?.timeline_v2 || result?.timeline;
+        console.log("[Parser] timeline object keys:", Object.keys(timelineV2 || {}));
+
+        const timeline = timelineV2?.timeline;
+        console.log("[Parser] timeline.timeline keys:", Object.keys(timeline || {}));
+
+        // 1. Locate Instructions - try multiple paths
+        let instructions = timeline?.instructions ||
+            result?.timeline?.instructions ||
+            data?.bookmark_timeline_v2?.timeline?.instructions ||
+            data?.user_result?.result?.timeline_v2?.timeline?.instructions;
+
+        console.log("[Parser] Instructions found:", !!instructions, Array.isArray(instructions) ? instructions.length : 0);
+
+        if (!instructions || !Array.isArray(instructions)) {
+            console.log("[Parser] No instructions found. Dumping structure...");
+            console.log("[Parser] Full result keys:", Object.keys(result || {}));
+            return [];
+        }
+
+        // 2. Iterate Instructions
+        instructions.forEach((instruction: any) => {
+            if (instruction.type === "TimelineAddEntries" && instruction.entries) {
+                instruction.entries.forEach((entry: any) => {
+                    // 3. Extract Tweet from Entry
+                    const itemContent = entry.content?.itemContent;
+                    if (itemContent?.tweet_results?.result) {
+                        // Construct a wrapper that parseTweet expects
+                        const wrapper = {
+                            data: {
+                                tweetResult: {
+                                    result: itemContent.tweet_results.result
+                                }
+                            }
+                        };
+
+                        // Map sourceTag: 'likes_timeline' -> 'like', 'bookmarks_timeline' -> 'bookmark'
+                        let mappedSource = sourceTag;
+                        if (sourceTag === 'likes_timeline') mappedSource = 'like';
+                        if (sourceTag === 'bookmarks_timeline') mappedSource = 'bookmark';
+
+                        const tweet = parseTweet(wrapper, mappedSource);
+                        if (tweet) tweets.push(tweet);
+                    }
+                });
+            }
+        });
+
+    } catch (e) {
+        console.error("[Parser] Error parsing timeline:", e);
+    }
+    return tweets;
 }
