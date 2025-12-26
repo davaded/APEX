@@ -23,58 +23,55 @@ interface TweetCardProps {
 
 export function TweetCard({ tweet, onClick }: TweetCardProps) {
     const hasMedia = tweet.media_urls && tweet.media_urls.length > 0;
-    const isShortText = !hasMedia && (tweet.full_text?.length || 0) < 140;
+    const mediaCount = tweet.media_urls?.length || 0;
 
     return (
         <motion.div
             layoutId={`card-${tweet.tweet_id}`}
             onClick={() => onClick?.(tweet)}
-            whileHover={{ y: -4, boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)" }}
-            className="group relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer transition-colors hover:border-zinc-700"
+            whileHover={{ y: -2 }}
+            className="group relative bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden cursor-pointer transition-colors hover:bg-zinc-900/60 hover:border-zinc-700/50"
         >
-            {/* Media or Hero Section */}
+            {/* Media Grid */}
             {hasMedia && (
-                <div className="relative aspect-video w-full overflow-hidden">
-                    <Image
-                        src={tweet.media_urls![0]}
-                        alt="Tweet media"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        draggable={false}
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-zinc-900/80 to-transparent" />
+                <div className={`relative w-full overflow-hidden border-b border-zinc-800/50 ${mediaCount > 1 ? 'grid grid-cols-2 gap-px bg-zinc-800/50' : 'aspect-video'}`}>
+                    {tweet.media_urls!.slice(0, 4).map((url, index) => (
+                        <div key={index} className={`relative ${mediaCount === 1 ? 'w-full h-full' : 'aspect-square'} ${mediaCount === 3 && index === 0 ? 'row-span-2 h-full' : ''}`}>
+                            <Image
+                                src={url}
+                                alt="Tweet media"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                draggable={false}
+                            />
+                        </div>
+                    ))}
                 </div>
             )}
 
             {/* Content Section */}
-            <div className={`p-5 ${isShortText ? "flex flex-col justify-center min-h-[160px] text-center" : ""}`}>
-                {/* Author Info (Hidden by default or subtle) */}
-                {!isShortText && (
-                    <div className="flex items-center gap-2 mb-2 text-zinc-500 text-xs">
-                        <span className="font-medium text-zinc-400">@{tweet.user_screen_name}</span>
-                        <span>•</span>
-                        <span>{tweet.tweet_created_at ? formatDistanceToNow(new Date(tweet.tweet_created_at)) : 'Recently'}</span>
-                    </div>
-                )}
+            <div className="p-8 flex flex-col gap-4">
 
-                {/* Text Content */}
-                <p className={`text-zinc-200 ${isShortText ? "font-serif text-2xl leading-tight text-white" : "text-sm leading-relaxed line-clamp-4"}`}>
+                {/* Text Content: Fixed 17px Serif, Line-height 1.6 */}
+                <p className="font-serif text-[17px] leading-[1.6] text-zinc-200 line-clamp-3 group-hover:text-zinc-100 transition-colors">
                     {tweet.full_text}
                 </p>
 
-                {/* Short Text Author Footer */}
-                {isShortText && (
-                    <div className="mt-4 text-zinc-500 text-xs font-mono uppercase tracking-widest opacity-40 group-hover:opacity-100 transition-opacity">
-                        @{tweet.user_screen_name}
+                {/* Decoupled Metadata (Bottom, Fade in on Hover) */}
+                <div className="flex items-center justify-between pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[9px] font-bold text-zinc-400 border border-zinc-700/50">
+                            {tweet.user_name?.[0] || "?"}
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-[12px] font-medium text-zinc-300 font-sans">{tweet.user_name}</span>
+                            <span className="text-[11px] text-zinc-600 font-sans">@{tweet.user_screen_name}</span>
+                        </div>
                     </div>
-                )}
 
-                {/* Metadata Footer (Hover Reveal) */}
-                <div className="absolute bottom-4 right-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {/* Add icons here later if needed */}
-                    <div className="text-xs text-zinc-500 bg-zinc-950/50 px-2 py-1 rounded backdrop-blur-md">
-                        {tweet.source}
-                    </div>
+                    <span className="text-[11px] text-zinc-600 font-mono tracking-tight">
+                        {tweet.tweet_created_at ? formatDistanceToNow(new Date(tweet.tweet_created_at)) : 'now'}
+                    </span>
                 </div>
             </div>
         </motion.div>

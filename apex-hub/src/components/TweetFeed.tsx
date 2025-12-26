@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { TweetCard } from "./TweetCard";
 import { TweetDrawer } from "./TweetDrawer";
+import { ConsoleBlock } from "./ConsoleBlock";
 
 // Initialize client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -78,15 +79,20 @@ export function TweetFeed() {
             </div>
 
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(8)].map((_, i) => (
                         <div key={i} className="h-64 bg-zinc-900/50 rounded-2xl animate-pulse" />
                     ))}
                 </div>
             ) : (
-                <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6 pb-24">
+                    {/* Pinned Console Block */}
+                    <div className="break-inside-avoid mb-6">
+                        <ConsoleBlock />
+                    </div>
+
                     {tweets.map((tweet) => (
-                        <div key={tweet.id} className="break-inside-avoid">
+                        <div key={tweet.id} className="break-inside-avoid mb-6">
                             <TweetCard
                                 tweet={tweet}
                                 onClick={(t) => setSelectedTweet(t)}
