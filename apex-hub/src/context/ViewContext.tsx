@@ -1,0 +1,30 @@
+"use client";
+
+import React, { createContext, useContext, useState } from "react";
+
+type ViewMode = "grid" | "compact";
+
+interface ViewContextType {
+    viewMode: ViewMode;
+    setViewMode: (mode: ViewMode) => void;
+}
+
+const ViewContext = createContext<ViewContextType | undefined>(undefined);
+
+export function ViewProvider({ children }: { children: React.ReactNode }) {
+    const [viewMode, setViewMode] = useState<ViewMode>("grid");
+
+    return (
+        <ViewContext.Provider value={{ viewMode, setViewMode }}>
+            {children}
+        </ViewContext.Provider>
+    );
+}
+
+export function useView() {
+    const context = useContext(ViewContext);
+    if (context === undefined) {
+        throw new Error("useView must be used within a ViewProvider");
+    }
+    return context;
+}

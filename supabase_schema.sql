@@ -8,6 +8,7 @@ create table public.tweets (
   full_text text,
   user_screen_name text,
   user_name text,
+  user_avatar_url text,
   media_urls jsonb,
   tweet_created_at timestamptz,
   captured_at timestamptz default now(),

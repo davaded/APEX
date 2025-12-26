@@ -10,6 +10,7 @@ interface Tweet {
     full_text?: string;
     user_screen_name?: string;
     user_name?: string;
+    user_avatar_url?: string;
     media_urls?: string[]; // Stored as JSONB in DB, parsed as string[] here
     tweet_created_at?: string;
     source?: string;
@@ -27,7 +28,8 @@ export function TweetCard({ tweet, onClick }: TweetCardProps) {
 
     return (
         <motion.div
-            layoutId={`card-${tweet.tweet_id}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             onClick={() => onClick?.(tweet)}
             whileHover={{ y: -2 }}
             className="group relative bg-zinc-900/40 border border-zinc-800/50 rounded-3xl overflow-hidden cursor-pointer transition-colors hover:bg-zinc-900/60 hover:border-zinc-700/50"
@@ -53,15 +55,24 @@ export function TweetCard({ tweet, onClick }: TweetCardProps) {
             <div className="p-8 flex flex-col gap-4">
 
                 {/* Text Content: Fixed 17px Serif, Line-height 1.6 */}
-                <p className="font-serif text-[17px] leading-[1.6] text-zinc-200 line-clamp-3 group-hover:text-zinc-100 transition-colors">
+                <p className="font-serif text-[17px] leading-[1.6] text-zinc-200 group-hover:text-zinc-100 transition-colors">
                     {tweet.full_text}
                 </p>
 
                 {/* Decoupled Metadata (Bottom, Fade in on Hover) */}
                 <div className="flex items-center justify-between pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[9px] font-bold text-zinc-400 border border-zinc-700/50">
-                            {tweet.user_name?.[0] || "?"}
+                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-zinc-700/50 relative">
+                            {tweet.user_avatar_url ? (
+                                <Image
+                                    src={tweet.user_avatar_url}
+                                    alt={tweet.user_name || "User"}
+                                    fill
+                                    className="object-cover"
+                                />
+                            ) : (
+                                <span className="text-[9px] font-bold text-zinc-400">{tweet.user_name?.[0] || "?"}</span>
+                            )}
                         </div>
                         <div className="flex items-baseline gap-2">
                             <span className="text-[12px] font-medium text-zinc-300 font-sans">{tweet.user_name}</span>

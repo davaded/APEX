@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { TweetCard } from "./TweetCard";
+import { TweetRow } from "./TweetRow";
 import { TweetDrawer } from "./TweetDrawer";
+import { QuoteCard } from "./QuoteCard";
 import { ConsoleBlock } from "./ConsoleBlock";
+import { useView } from "@/context/ViewContext";
+import { cn } from "@/lib/utils";
 
 // Initialize client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,6 +24,7 @@ interface Tweet {
     full_text?: string;
     user_screen_name?: string;
     user_name?: string;
+    user_avatar_url?: string;
     media_urls?: string[];
     tweet_created_at?: string;
     source?: string;
@@ -30,6 +35,18 @@ export function TweetFeed() {
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const { viewMode } = useView();
+
+    const toggleSelection = (id: string) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
 
     useEffect(() => {
         if (!supabase) {
@@ -73,7 +90,7 @@ export function TweetFeed() {
     }, []);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 max-w-7xl mx-auto relative">
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
             </div>
@@ -85,20 +102,59 @@ export function TweetFeed() {
                     ))}
                 </div>
             ) : (
-                <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6 pb-24">
-                    {/* Pinned Console Block */}
-                    <div className="break-inside-avoid mb-6">
-                        <ConsoleBlock />
-                    </div>
+                <div className={cn(
+                    "gap-6 pb-24",
+                    viewMode === 'grid'
+                        ? "columns-1 md:columns-2 lg:columns-3 xl:columns-4 space-y-6"
+                        : "max-w-5xl mx-auto flex flex-col border-t border-zinc-800/50" // Compact mode
+                )}>
+                    {/* Pinned Console Block - Hide in Compact Mode */}
+                    {viewMode !== 'compact' && (
+                        <div className="break-inside-avoid mb-6">
+                            <ConsoleBlock />
+                        </div>
+                    )}
 
-                    {tweets.map((tweet) => (
-                        <div key={tweet.id} className="break-inside-avoid mb-6">
-                            <TweetCard
-                                tweet={tweet}
-                                onClick={(t) => setSelectedTweet(t)}
-                            />
+                    {tweets.map((tweet, index) => (
+                        <div key={tweet.id} className="contents">
+                            {/* Insert Quote Card every 6 items */}
+                            {viewMode === 'grid' && index > 0 && index % 6 === 0 && (
+                                <div className="break-inside-avoid mb-6">
+                                    <QuoteCard />
+                                </div>
+                            )}
+
+                            <div className={cn(
+                                "break-inside-avoid",
+                                viewMode === 'grid' ? "mb-6" : ""
+                            )}>
+                                {viewMode === 'compact' ? (
+                                    <TweetRow
+                                        tweet={tweet}
+                                        isSelected={selectedIds.has(tweet.id)}
+                                        onSelect={() => toggleSelection(tweet.id)}
+                                        onClick={(t) => setSelectedTweet(t)}
+                                    />
+                                ) : (
+                                    <TweetCard
+                                        tweet={tweet}
+                                        onClick={(t) => setSelectedTweet(t)}
+                                    />
+                                )}
+                            </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Float Toolbar */}
+            {selectedIds.size > 0 && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-full px-6 py-3 shadow-2xl flex items-center gap-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+                    <span className="text-sm font-medium text-zinc-300">{selectedIds.size} selected</span>
+                    <div className="h-4 w-px bg-zinc-800" />
+                    <button className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Move to Folder</button>
+                    <button className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Tag</button>
+                    <button className="text-sm font-medium text-red-400 hover:text-red-300 transition-colors">Delete</button>
                 </div>
             )}
 
