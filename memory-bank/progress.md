@@ -4,8 +4,8 @@
 This document tracks the development progress of the APEX project, recording completed milestones, current status, and next steps.
 
 ## Status Overview
-- **Current Phase**: Phase 2 Complete / Schema Sync Pending
-- **Last Updated**: 2025-12-25
+- **Current Phase**: Phase 3 Complete / Ready for Phase 4 (Frontend)
+- **Last Updated**: 2025-12-26
 
 ## Completed Milestones
 
@@ -31,15 +31,19 @@ This document tracks the development progress of the APEX project, recording com
 - [x] **Cursor Pagination**: Auto-extracts next cursor for continuous mining
 - [x] **Tweet URL**: Added `tweet_url` field (https://x.com/{user}/status/{id})
 
-### Phase 3: Database Design (2025-12-24)
+### Phase 3: Database Design (2025-12-24 ~ 2025-12-26)
 - [x] Created `tweets` table with pgvector support
 - [x] Created `tags` and `tweet_tags` tables
 - [x] Enabled RLS policies
+- [x] **Schema Sync**: Added missing columns (`user_avatar`, `video_url`, `tweet_url`, `metrics`, `is_quoted`)
+- [x] **Parser Fixes**:
+    - Fixed user info extraction (screen_name, name) from `userResults.core`
+    - Implemented fallback URL (`https://x.com/i/status/{id}`) for unknown users
 
-## Pending Tasks
-- [ ] Run SQL migration to add missing columns (`user_avatar`, `video_url`, `tweet_url`, `metrics`, `is_quoted`)
-- [ ] Verify Supabase sync completes successfully
-- [ ] Begin Phase 4: Frontend Infrastructure
+## Next Steps: Phase 4 (Frontend)
+- [ ] Create Tweet Feed Page (Waterfall layout)
+- [ ] Implement Search & Filter
+- [ ] Display Tweet Details (Images, Videos)
 
 ## Known Issues
 - CSP warning about ws://localhost:1815 (HMR related, not affecting functionality)

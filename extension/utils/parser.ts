@@ -126,16 +126,38 @@ export function parseTweet(rawData: any, sourceTag: string = "extension"): Parse
             if (q) quotedTweet = q;
         }
 
-        const screenName = user?.screen_name || "unknown";
+        // Extract user info - screen_name and name are in userResults.core
+        const userResults = result.core?.user_results?.result as any;
+
+        // Try to find screen_name in multiple places
+        let screenName = userResults?.core?.screen_name ||
+            userResults?.legacy?.screen_name ||
+            user?.screen_name ||
+            (result as any).core?.user_result?.result?.legacy?.screen_name ||
+            "unknown";
+
+        const userName = userResults?.core?.name ||
+            userResults?.legacy?.name ||
+            user?.name ||
+            (result as any).core?.user_result?.result?.legacy?.name ||
+            "Unknown";
+
+        const userAvatar = user?.profile_image_url_https ||
+            userResults?.legacy?.profile_image_url_https ||
+            "";
+
         const tweetId = result.rest_id || "unknown";
+
+        // Fallback URL if screen_name is unknown
+        const urlUser = screenName === "unknown" ? "i" : screenName;
 
         return {
             tweet_id: tweetId,
-            tweet_url: `https://x.com/${screenName}/status/${tweetId}`,
+            tweet_url: `https://x.com/${urlUser}/status/${tweetId}`,
             full_text: legacy.full_text || "",
-            user_name: user?.name || "Unknown",
+            user_name: userName,
             user_screen_name: screenName,
-            user_avatar: user?.profile_image_url_https || "",
+            user_avatar: userAvatar,
             media_urls: mediaUrls,
             video_url: videoUrl,
             created_at: legacy.created_at ? new Date(legacy.created_at).toISOString() : new Date().toISOString(),
