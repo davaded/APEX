@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { ViewProvider } from "@/context/ViewContext";
 import "./globals.css";
 import { Dock } from "@/components/Dock";
 import { CommandCenter } from "@/components/CommandCenter";
-import { ViewProvider } from "@/context/ViewContext";
+
 
 const inter = Inter({
   variable: "--font-inter",

@@ -2,17 +2,18 @@
 
 import { motion } from "framer-motion";
 import { LayoutGrid, Clock, Tag, BarChart2, Settings, User } from "lucide-react";
+import { useView, AppSection } from "@/context/ViewContext";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export function Dock() {
-    const [activeTab, setActiveTab] = useState("timeline");
+    const { activeApp, setActiveApp } = useView();
 
-    const navItems = [
-        { id: "dashboard", icon: LayoutGrid, label: "Dashboard" },
-        { id: "timeline", icon: Clock, label: "Timeline" },
-        { id: "tags", icon: Tag, label: "Tags" },
-        { id: "analytics", icon: BarChart2, label: "Analytics" },
+    const navItems: { id: AppSection; icon: any; label: string }[] = [
+        { id: "dashboard", icon: LayoutGrid, label: "The Nexus" },
+        { id: "timeline", icon: Clock, label: "Time Machine" },
+        { id: "tags", icon: Tag, label: "Neural Clusters" },
+        { id: "analytics", icon: BarChart2, label: "Quantified Self" },
     ];
 
     return (
@@ -24,11 +25,11 @@ export function Dock() {
         >
             <div className="flex flex-col items-center gap-6 p-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50">
                 {navItems.map((item) => {
-                    const isActive = activeTab === item.id;
+                    const isActive = activeApp === item.id;
                     return (
                         <button
                             key={item.id}
-                            onClick={() => setActiveTab(item.id)}
+                            onClick={() => setActiveApp(item.id)}
                             className={cn(
                                 "relative p-3 rounded-full transition-all duration-300 group",
                                 isActive ? "text-emerald-400 bg-white/10" : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
@@ -54,11 +55,29 @@ export function Dock() {
 
                 <div className="w-8 h-px bg-white/10 my-2" />
 
-                <button className="p-3 rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-all">
+                <button
+                    onClick={() => setActiveApp('settings')}
+                    className={cn(
+                        "relative p-3 rounded-full transition-all group",
+                        activeApp === 'settings' ? "text-emerald-400 bg-white/10" : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
+                    )}
+                >
                     <Settings className="w-5 h-5" />
+                    <span className="absolute left-full ml-4 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none whitespace-nowrap">
+                        System Core
+                    </span>
                 </button>
-                <button className="p-3 rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-all">
+                <button
+                    onClick={() => setActiveApp('profile')}
+                    className={cn(
+                        "relative p-3 rounded-full transition-all group",
+                        activeApp === 'profile' ? "text-emerald-400 bg-white/10" : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
+                    )}
+                >
                     <User className="w-5 h-5" />
+                    <span className="absolute left-full ml-4 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none whitespace-nowrap">
+                        Profile
+                    </span>
                 </button>
             </div>
         </motion.div>

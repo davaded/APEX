@@ -244,7 +244,7 @@ async function syncPendingTweets() {
             full_text: p.data.full_text,
             user_name: p.data.user_name,
             user_screen_name: p.data.user_screen_name,
-            user_avatar: p.data.user_avatar,
+            user_avatar_url: p.data.user_avatar, // Mapped to Correct DB Column
             media_urls: p.data.media_urls,
             video_url: p.data.video_url || null,
             tweet_created_at: p.data.created_at,

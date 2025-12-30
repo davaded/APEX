@@ -86,7 +86,13 @@ export function ConsoleBlock() {
                         className="truncate"
                     >
                         <span className="text-zinc-600 mr-2">{log.split("]")[0]}]</span>
-                        <span className={log.includes("Error") ? "text-red-400" : "text-emerald-500/80"}>
+                        <span className={
+                            log.includes("Error")
+                                ? "text-red-400"
+                                : i === 0
+                                    ? "text-emerald-500"
+                                    : "text-emerald-500/50 font-normal"
+                        }>
                             {log.split("]")[1]}
                         </span>
                     </motion.div>

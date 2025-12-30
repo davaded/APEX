@@ -10,22 +10,25 @@ import { ConsoleBlock } from "./ConsoleBlock";
 import { useView } from "@/context/ViewContext";
 import { cn } from "@/lib/utils";
 
-// Initialize client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase = (supabaseUrl && supabaseKey)
-    ? createClient(supabaseUrl, supabaseKey)
-    : null;
+import { supabase } from "@/lib/supabase";
 
 interface Tweet {
     id: string;
     tweet_id: string;
+    tweet_url?: string;
     full_text?: string;
     user_screen_name?: string;
     user_name?: string;
     user_avatar_url?: string;
     media_urls?: string[];
+    video_url?: string;
+    metrics?: {
+        likes: number;
+        retweets: number;
+        replies: number;
+        quotes: number;
+    };
+    is_quoted?: boolean;
     tweet_created_at?: string;
     source?: string;
     captured_at?: string;
