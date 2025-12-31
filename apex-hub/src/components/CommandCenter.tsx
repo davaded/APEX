@@ -13,7 +13,7 @@ import {
     CommandList,
     CommandSeparator,
 } from "@/components/ui/command";
-import { Search, Hash, User, FileText, Sparkles, LayoutGrid, Clock, BarChart2, Settings } from "lucide-react";
+import { Search, Hash, User, FileText, Sparkles, LayoutGrid, Clock, BarChart2, Settings, ArrowRight } from "lucide-react";
 
 interface SearchResult {
     tweet_id: string;
@@ -48,13 +48,19 @@ export function CommandCenter() {
                 return;
             }
 
-            const { data } = await supabase
+            console.log("Searching for:", query);
+            const { data, error } = await supabase
                 .from("tweets")
                 .select("tweet_id, full_text, user_name")
                 .ilike("full_text", `%${query}%`)
                 .limit(5);
 
+            if (error) {
+                console.error("Search error:", error);
+            }
+
             if (data) {
+                console.log("Search results:", data);
                 setResults(data);
             }
         }, 300);
@@ -68,13 +74,13 @@ export function CommandCenter() {
     }, []);
 
     return (
-        <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandDialog open={open} onOpenChange={setOpen} shouldFilter={false}>
             <CommandInput
                 placeholder="Type a command or search..."
                 value={query}
                 onValueChange={setQuery}
             />
-            <CommandList>
+            <CommandList className="custom-scrollbar">
                 <CommandEmpty>No results found.</CommandEmpty>
 
                 {query.length > 0 && (
@@ -82,14 +88,35 @@ export function CommandCenter() {
                         {results.map((result) => (
                             <CommandItem
                                 key={result.tweet_id}
+                                value={`${result.user_name} ${result.tweet_id} ${result.full_text}`}
                                 onSelect={() => runCommand(() => router.push(`/tweet/${result.tweet_id}`))}
-                                className="cursor-pointer"
+                                onMouseDown={(e) => {
+                                    // Backup interaction handler
+                                    if (e.button === 0) {
+                                        e.preventDefault();
+                                        runCommand(() => router.push(`/tweet/${result.tweet_id}`));
+                                    }
+                                }}
+                                className="group flex cursor-pointer items-center justify-between rounded-lg border border-transparent px-4 py-3 transition-all hover:bg-white/5 hover:border-white/5 active:scale-[0.99] aria-selected:bg-transparent data-[disabled]:pointer-events-auto data-[disabled]:opacity-100"
                             >
-                                <FileText className="mr-2 h-4 w-4 text-emerald-500" />
-                                <span className="truncate">
-                                    <span className="font-semibold mr-2 text-zinc-300">{result.user_name}:</span>
-                                    <span className="text-zinc-400">{result.full_text}</span>
-                                </span>
+                                <div className="flex items-center gap-3 overflow-hidden w-full">
+                                    {/* Icon */}
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-zinc-900 text-zinc-500 group-hover:text-emerald-500 group-hover:bg-emerald-950/30 transition-colors">
+                                        <FileText size={16} />
+                                    </div>
+
+                                    <div className="flex flex-col overflow-hidden">
+                                        <span className="truncate text-sm font-medium text-zinc-200 group-hover:text-white">
+                                            {result.user_name}
+                                        </span>
+                                        <span className="truncate text-xs text-zinc-500">
+                                            {result.full_text}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Arrow: Hover only */}
+                                <ArrowRight size={14} className="text-zinc-600 opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 ml-2 shrink-0" />
                             </CommandItem>
                         ))}
                     </CommandGroup>

@@ -28,7 +28,7 @@ export async function fetchNeuralClusters(): Promise<ClusterNode[]> {
     // We will simple-tokenize the texts locally.
     const { data: tweets } = await supabase
         .from("tweets")
-        .select("full_text, ai_summary")
+        .select("full_text")
         .order("captured_at", { ascending: false })
         .limit(50);
 
@@ -38,8 +38,8 @@ export async function fetchNeuralClusters(): Promise<ClusterNode[]> {
     const stopWords = new Set(['the', 'and', 'a', 'to', 'of', 'in', 'is', 'for', 'on', 'with', 'this', 'that', 'it', 'from', 'be', 'are', 'as', 'at', 'by', 'an', 'have', 'has', 'was', 'not', 'but', 'or', 'we', 'i', 'my', 'you', 'your', 'https', 't.co', 'co']);
 
     tweets.forEach(t => {
-        // Combine text and summary
-        const content = (t.full_text + " " + (t.ai_summary || "")).toLowerCase();
+        // Combine text and summary (summary disabled for now)
+        const content = (t.full_text).toLowerCase();
         // Remove special chars and split
         const words = content.replace(/[^\w\s]/g, '').split(/\s+/);
 

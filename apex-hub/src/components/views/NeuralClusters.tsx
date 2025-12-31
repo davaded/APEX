@@ -6,6 +6,7 @@ import { Tag, Hash, Loader2, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TweetCard } from "@/components/TweetCard";
 import { TweetDrawer } from "@/components/TweetDrawer";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
 // --- Types ---
