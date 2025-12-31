@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SideCard } from "@/components/SideCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { TweetAnalysisControl } from "@/components/TweetAnalysisControl";
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = "force-dynamic";
@@ -113,25 +114,15 @@ export default async function TweetFocusPage({ params }: { params: Promise<{ id:
                         {title}
                     </h1>
 
-                    {/* AI Summary (Oracle Style) */}
-                    {aiSummary ? (
-                        <div className="my-10 p-8 bg-gradient-to-br from-emerald-950/20 to-black border border-emerald-500/20 rounded-2xl">
-                            <div className="mb-4 flex items-center gap-2 text-emerald-500">
-                                <Sparkles size={18} />
-                                <span className="text-xs font-bold tracking-widest uppercase">AI Insight</span>
-                            </div>
-                            <p className="font-serif text-xl italic text-emerald-100/80 leading-relaxed">
-                                "{aiSummary}"
-                            </p>
-                        </div>
-                    ) : (
-                        // Fallback Oracle if no summary (Optional, for aesthetics)
-                        <div className="my-10 p-8 border border-white/5 rounded-2xl bg-white/[0.02]">
-                            <p className="text-zinc-500 italic">
-                                Use the expander to generate AI insights for this content...
-                            </p>
-                        </div>
-                    )}
+                    {/* AI Analysis Control */}
+                    <TweetAnalysisControl
+                        tweetId={tweet.tweet_id}
+                        fullText={tweet.full_text}
+                        initialSummary={aiSummary}
+                    // Note: We need to fetch tags if we want to show them initially. 
+                    // For now, we'll just pass empty array or fetch them in getTweet if we update the query.
+                    // Assuming tags are not yet joined in the getTweet query for simplicity.
+                    />
 
                     {/* Main Text */}
                     <div className="prose prose-invert prose-lg max-w-none text-zinc-300 font-light leading-9 font-sans whitespace-pre-wrap">

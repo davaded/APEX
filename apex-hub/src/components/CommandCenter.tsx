@@ -25,6 +25,7 @@ export function CommandCenter() {
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState("");
     const [results, setResults] = React.useState<SearchResult[]>([]);
+    const [isSearching, setIsSearching] = React.useState(false);
     const router = useRouter();
     const { setActiveApp } = useView();
 
@@ -42,30 +43,47 @@ export function CommandCenter() {
 
     // Debounced Search
     React.useEffect(() => {
-        const timer = setTimeout(async () => {
+        const handleSearch = async () => {
             if (!query.trim()) {
                 setResults([]);
                 return;
             }
 
-            console.log("Searching for:", query);
-            const { data, error } = await supabase
-                .from("tweets")
-                .select("tweet_id, full_text, user_name")
-                .ilike("full_text", `%${query}%`)
-                .limit(5);
+            setIsSearching(true);
+            try {
+                // Get config from localStorage
+                const apiKey = localStorage.getItem("apex_openai_key") || "";
+                const baseURL = localStorage.getItem("apex_openai_base_url") || "";
 
-            if (error) {
+                // Use the new Semantic Search API
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-openai-key': apiKey,
+                        'x-openai-base-url': baseURL
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setResults(data.tweets || []);
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("Search API failed:", response.status, response.statusText, errorData);
+                    setResults([]);
+                }
+            } catch (error) {
                 console.error("Search error:", error);
+                setResults([]);
+            } finally {
+                setIsSearching(false);
             }
+        };
 
-            if (data) {
-                console.log("Search results:", data);
-                setResults(data);
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
+        const debounce = setTimeout(handleSearch, 500); // 500ms debounce
+        return () => clearTimeout(debounce);
     }, [query]);
 
     const runCommand = React.useCallback((command: () => unknown) => {

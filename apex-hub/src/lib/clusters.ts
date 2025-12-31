@@ -43,7 +43,7 @@ export async function fetchNeuralClusters(): Promise<ClusterNode[]> {
         // Remove special chars and split
         const words = content.replace(/[^\w\s]/g, '').split(/\s+/);
 
-        words.forEach(w => {
+        words.forEach((w: string) => {
             if (w.length > 3 && !stopWords.has(w) && !/^\d+$/.test(w)) {
                 wordMap[w] = (wordMap[w] || 0) + 1;
             }

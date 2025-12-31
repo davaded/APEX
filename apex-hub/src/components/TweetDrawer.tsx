@@ -8,20 +8,7 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-interface Tweet {
-    id: string;
-    tweet_id: string;
-    full_text?: string;
-    user_screen_name?: string;
-    user_name?: string;
-    user_avatar_url?: string;
-    media_urls?: string[];
-    tweet_created_at?: string;
-    source?: string;
-    captured_at?: string;
-    ai_summary?: string; // Optional field for AI summary
-    urls?: string[]; // Optional field for extracted URLs
-}
+import { Tweet } from "@/types/tweet";
 
 interface TweetDrawerProps {
     tweet: Tweet | null;

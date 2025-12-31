@@ -7,14 +7,27 @@ import { cn } from "@/lib/utils";
 
 export function SystemCore() {
     const [apiKey, setApiKey] = useState("");
+    const [baseURL, setBaseURL] = useState("");
+    const [model, setModel] = useState("gpt-4o-mini");
     const [status, setStatus] = useState<'online' | 'offline'>('online');
     const [exporting, setExporting] = useState(false);
 
-    // Mock functionality for API Key save
-    const saveKey = () => {
-        if (!apiKey) return;
-        localStorage.setItem("apex_openai_key", apiKey);
-        alert("API Key Saved locally.");
+    // Load saved settings on mount
+    useEffect(() => {
+        const savedKey = localStorage.getItem("apex_openai_key");
+        const savedBaseURL = localStorage.getItem("apex_openai_base_url");
+        const savedModel = localStorage.getItem("apex_openai_model");
+
+        if (savedKey) setApiKey(savedKey);
+        if (savedBaseURL) setBaseURL(savedBaseURL);
+        if (savedModel) setModel(savedModel);
+    }, []);
+
+    const saveSettings = () => {
+        if (apiKey) localStorage.setItem("apex_openai_key", apiKey);
+        if (baseURL) localStorage.setItem("apex_openai_base_url", baseURL);
+        if (model) localStorage.setItem("apex_openai_model", model);
+        alert("AI Configuration Saved locally.");
     };
 
     // Real functionality: Export all tweets as JSON
@@ -65,11 +78,12 @@ export function SystemCore() {
                     </div>
 
                     <div className="space-y-4">
-                        <label className="block text-sm font-medium text-zinc-400">
-                            OpenAI API Key
-                        </label>
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
+                        {/* API Key */}
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">
+                                OpenAI API Key
+                            </label>
+                            <div className="relative">
                                 <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                                 <input
                                     type="password"
@@ -79,15 +93,48 @@ export function SystemCore() {
                                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-2 pl-10 pr-4 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
                                 />
                             </div>
-                            <button
-                                onClick={saveKey}
-                                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-medium text-sm rounded-xl transition-colors flex items-center gap-2"
-                            >
-                                <Save size={16} /> Save
-                            </button>
                         </div>
-                        <p className="text-xs text-zinc-600">
-                            Required for auto-summarization and vector clustering. Stored locally in your browser.
+
+                        {/* Base URL */}
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">
+                                Base URL (Optional)
+                            </label>
+                            <input
+                                type="text"
+                                value={baseURL}
+                                onChange={(e) => setBaseURL(e.target.value)}
+                                placeholder="https://api.openai.com/v1"
+                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-2 px-4 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
+                            />
+                            <p className="text-[10px] text-zinc-600 mt-1 ml-1">
+                                Must end with <code className="text-zinc-500">/v1</code> for most providers (e.g. LM Studio, Ollama).
+                            </p>
+                        </div>
+
+                        {/* Model Name (Chat) */}
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">
+                                Chat Model Name
+                            </label>
+                            <input
+                                type="text"
+                                value={model}
+                                onChange={(e) => setModel(e.target.value)}
+                                placeholder="gpt-4o-mini"
+                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-2 px-4 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
+                            />
+                        </div>
+
+                        <button
+                            onClick={saveSettings}
+                            className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 mt-2"
+                        >
+                            <Save size={16} /> Save Configuration
+                        </button>
+
+                        <p className="text-xs text-zinc-600 text-center">
+                            Settings are stored locally in your browser.
                         </p>
                     </div>
 

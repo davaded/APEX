@@ -5,27 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { X } from "lucide-react";
 
-interface Tweet {
-    id: string;
-    tweet_id: string;
-    tweet_url?: string;
-    full_text?: string;
-    user_screen_name?: string;
-    user_name?: string;
-    user_avatar_url?: string;
-    media_urls?: string[];
-    video_url?: string;
-    metrics?: {
-        likes: number;
-        retweets: number;
-        replies: number;
-        quotes: number;
-    };
-    is_quoted?: boolean;
-    tweet_created_at?: string;
-    source?: string;
-    captured_at?: string;
-}
+import { Tweet } from "@/types/tweet";
 
 interface TweetCardProps {
     tweet: Tweet;

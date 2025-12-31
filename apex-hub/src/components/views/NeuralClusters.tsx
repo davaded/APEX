@@ -10,18 +10,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
 // --- Types ---
-interface Tweet {
-    id: string; // UUID
-    tweet_id: string;
-    full_text: string;
-    user_name: string;
-    user_screen_name: string;
-    user_avatar_url: string;
-    media_urls?: string[];
-    created_at: string;
-    captured_at?: string;
-    ai_summary?: string;
-}
+import { Tweet } from "@/types/tweet";
 
 export function NeuralClusters() {
     const [nodes, setNodes] = useState<ClusterNode[]>([]);
@@ -52,7 +41,7 @@ export function NeuralClusters() {
             const { data } = await supabase
                 .from("tweets")
                 .select("*")
-                .ilike("full_text", `%${selectedNode.label}%`)
+                .ilike("full_text", `%${selectedNode?.label || ''}%`)
                 .limit(10);
 
             if (data) setRelatedTweets(data as any);

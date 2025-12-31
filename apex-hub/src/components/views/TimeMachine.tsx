@@ -11,18 +11,7 @@ import { Loader2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Types ---
-interface Tweet {
-    id: string; // UUID
-    tweet_id: string;
-    full_text: string;
-    user_name: string;
-    user_screen_name: string;
-    user_avatar_url: string;
-    media_urls?: string[];
-    created_at: string;
-    captured_at?: string;
-    ai_summary?: string;
-}
+import { Tweet } from "@/types/tweet";
 
 // --- Heatmap Component ---
 function Heatmap({ data, onSelectDate, selectedDate }: { data: ActivityData[], onSelectDate: (date: Date) => void, selectedDate: Date | null }) {
@@ -93,10 +82,11 @@ export function TimeMachine() {
     // 2. Load Tweets for Selected Date
     useEffect(() => {
         if (!selectedDate) return;
+        const dateToLoad = selectedDate;
 
         async function loadTweets() {
             setLoadingTweets(true);
-            const dateStr = format(selectedDate, "yyyy-MM-dd");
+            const dateStr = format(dateToLoad, "yyyy-MM-dd");
             const start = `${dateStr}T00:00:00`;
             const end = `${dateStr}T23:59:59`;
 
